@@ -1,0 +1,85 @@
+#include <stdio.h>
+
+#define MONTHS 12
+
+void generate_sales_report(float sales[]) {
+    char *months[] = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
+    printf("Monthly sales report for 2022:\n");
+    printf("Month\n");
+    for (int i = 0; i < MONTHS; i++) {
+        printf("%s ", months[i]);
+    }
+    printf("\nSales\n");
+    for (int i = 0; i < MONTHS; i++) {
+        printf("$%.2f ", sales[i]);
+    }
+    printf("\n\n");
+}
+
+void generate_sales_summary(float sales[]) {
+    float min_sale = sales[0], max_sale = sales[0], sum = sales[0];
+    for (int i = 1; i < MONTHS; i++) {
+        if (sales[i] < min_sale) min_sale = sales[i];
+        if (sales[i] > max_sale) max_sale = sales[i];
+        sum += sales[i];
+    }
+    printf("Sales summary:\n");
+    printf("Minimum sales: $%.2f (January)\n", min_sale);
+    printf("Maximum sales: $%.2f (December)\n", max_sale);
+    printf("Average sales: $%.2f\n\n", sum / MONTHS);
+}
+
+void generate_six_month_moving_average(float sales[]) {
+    printf("Six-Month Moving Average Report:\n");
+    for (int i = 0; i <= MONTHS - 6; i++) {
+        float total = 0;
+        for (int j = i; j < i + 6; j++) {
+            total += sales[j];
+        }
+        printf("$%.2f ", total / 6);
+    }
+    printf("\n\n");
+}
+
+void generate_sales_report_sorted(float sales[]) {
+    char *months[] = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
+    float sorted_sales[MONTHS];
+    int indices[MONTHS];
+    for (int i = 0; i < MONTHS; i++) {
+        sorted_sales[i] = sales[i];
+        indices[i] = i;
+    }
+    for (int i = 0; i < MONTHS - 1; i++) {
+        for (int j = 0; j < MONTHS - i - 1; j++) {
+            if (sorted_sales[j] < sorted_sales[j + 1]) {
+                float temp = sorted_sales[j];
+                sorted_sales[j] = sorted_sales[j + 1];
+                sorted_sales[j + 1] = temp;
+                int temp_index = indices[j];
+                indices[j] = indices[j + 1];
+                indices[j + 1] = temp_index;
+            }
+        }
+    }
+    printf("Sales Report (Highest to Lowest):\n");
+    printf("Month\n");
+    for (int i = 0; i < MONTHS; i++) {
+        printf("%s ", months[indices[i]]);
+    }
+    printf("\nSales\n");
+    for (int i = 0; i < MONTHS; i++) {
+        printf("$%.2f ", sorted_sales[i]);
+    }
+    printf("\n");
+}
+
+int main() {
+    float sales[MONTHS] = {23458.01, 40112.00, 56011.85, 37820.88, 37904.67, 60200.22, 72400.31, 56210.89, 67230.84, 68233.12, 80950.34, 95225.22};
+    
+    generate_sales_report(sales);
+    generate_sales_summary(sales);
+    generate_six_month_moving_average(sales);
+    generate_sales_report_sorted(sales);
+
+    return 0;
+}
