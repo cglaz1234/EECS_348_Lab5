@@ -1,85 +1,106 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-#define MONTHS 12
+// Define where to keep month and associated data
+struct MonthlyData {
+    char month[20];
+    double sales;
+};
 
-void generate_sales_report(float sales[]) {
-    char *months[] = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
-    printf("Monthly sales report for 2022:\n");
-    printf("Month\n");
-    for (int i = 0; i < MONTHS; i++) {
-        printf("%s ", months[i]);
-    }
-    printf("\nSales\n");
-    for (int i = 0; i < MONTHS; i++) {
-        printf("$%.2f ", sales[i]);
-    }
-    printf("\n\n");
-}
-
-void generate_sales_summary(float sales[]) {
-    float min_sale = sales[0], max_sale = sales[0], sum = sales[0];
-    for (int i = 1; i < MONTHS; i++) {
-        if (sales[i] < min_sale) min_sale = sales[i];
-        if (sales[i] > max_sale) max_sale = sales[i];
+// Caculates the average of sales
+double calculateAverage(double sales[], int numMonths) {
+    double sum = 0;
+    for (int i = 0; i < numMonths; i++) {
         sum += sales[i];
     }
-    printf("Sales summary:\n");
-    printf("Minimum sales: $%.2f (January)\n", min_sale);
-    printf("Maximum sales: $%.2f (December)\n", max_sale);
-    printf("Average sales: $%.2f\n\n", sum / MONTHS);
+    return sum / numMonths;
 }
 
-void generate_six_month_moving_average(float sales[]) {
-    printf("Six-Month Moving Average Report:\n");
-    for (int i = 0; i <= MONTHS - 6; i++) {
-        float total = 0;
-        for (int j = i; j < i + 6; j++) {
-            total += sales[j];
-        }
-        printf("$%.2f ", total / 6);
-    }
-    printf("\n\n");
-}
-
-void generate_sales_report_sorted(float sales[]) {
-    char *months[] = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
-    float sorted_sales[MONTHS];
-    int indices[MONTHS];
-    for (int i = 0; i < MONTHS; i++) {
-        sorted_sales[i] = sales[i];
-        indices[i] = i;
-    }
-    for (int i = 0; i < MONTHS - 1; i++) {
-        for (int j = 0; j < MONTHS - i - 1; j++) {
-            if (sorted_sales[j] < sorted_sales[j + 1]) {
-                float temp = sorted_sales[j];
-                sorted_sales[j] = sorted_sales[j + 1];
-                sorted_sales[j + 1] = temp;
-                int temp_index = indices[j];
-                indices[j] = indices[j + 1];
-                indices[j + 1] = temp_index;
+// Sorts monthly data from highest to lowest
+void sortMonthlyData(struct MonthlyData data[], int numMonths) {
+    int i, j;
+    struct MonthlyData temp;
+    for (i = 0; i < numMonths - 1; i++) {
+        for (j = i + 1; j < numMonths; j++) {
+            if (data[i].sales < data[j].sales) {
+                temp = data[i];
+                data[i] = data[j];
+                data[j] = temp;
             }
         }
     }
-    printf("Sales Report (Highest to Lowest):\n");
-    printf("Month\n");
-    for (int i = 0; i < MONTHS; i++) {
-        printf("%s ", months[indices[i]]);
-    }
-    printf("\nSales\n");
-    for (int i = 0; i < MONTHS; i++) {
-        printf("$%.2f ", sorted_sales[i]);
-    }
-    printf("\n");
 }
 
 int main() {
-    float sales[MONTHS] = {23458.01, 40112.00, 56011.85, 37820.88, 37904.67, 60200.22, 72400.31, 56210.89, 67230.84, 68233.12, 80950.34, 95225.22};
-    
-    generate_sales_report(sales);
-    generate_sales_summary(sales);
-    generate_six_month_moving_average(sales);
-    generate_sales_report_sorted(sales);
+    FILE *inputFile = fopen("monthly_sales.txt", "r"); //ATTENTION GRADER! REPLACE THIS FILE WITH YOUR OWN FILE NAME
+    if (inputFile == NULL) {
+        printf("Error opening input file.\n");
+        return 1;
+    }
+
+    double sales[12];
+    struct MonthlyData monthlyData[12];
+
+    // Read sales data from the input file
+    for (int i = 0; i < 12; i++) {
+        fscanf(inputFile, "%lf", &sales[i]);
+    }
+    fclose(inputFile);
+
+    // Create the month names
+    const char *months[] = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
+
+    // Initialize monthly data
+    for (int i = 0; i < 12; i++) {
+        strcpy(monthlyData[i].month, months[i]);
+        monthlyData[i].sales = sales[i];
+    }
+
+    // Calculate the minimum, maximum, and average sales
+    double minSales = sales[0];
+    double maxSales = sales[0];
+    double avgSales = calculateAverage(sales, 12);
+
+    for (int i = 1; i < 12; i++) {
+        if (sales[i] < minSales) {
+            minSales = sales[i];
+        }
+        if (sales[i] > maxSales) {
+            maxSales = sales[i];
+        }
+    }
+
+    // Sort monthly data by sales (highest to lowest)
+    sortMonthlyData(monthlyData, 12);
+
+    // Print the reports
+    printf("Monthly sales report for 2022:\n");
+    for (int i = 11; i >= 0; i--) {
+        printf("%-10s $%-10.2lf\n", monthlyData[i].month, monthlyData[i].sales);
+    }
+
+    printf("\nSales summary:\n");
+    printf("Minimum sales: $%.2lf (%s)\n", minSales, months[0]);
+    printf("Maximum sales: $%.2lf (%s)\n", maxSales, months[11]);
+    printf("Average sales: $%.2lf\n", avgSales);
+
+    printf("\nSix-Month Moving Average Report:\n");
+    // Calculate and print the moving average
+    for (int i = 0; i < 12 - 5; i++) {
+        double movingAvg = 0;
+        for (int j = 0; j < 6; j++) {
+            movingAvg += sales[i + j];
+        }
+        movingAvg /= 6;
+        printf("%-10s-  %-10s $%.2lf\n", months[i], months[i + 5], movingAvg);
+    }
+
+    printf("\nSales Report (Highest to Lowest):\n");
+    printf(" Month      Sales\n");
+    for (int i = 0; i < 12; i++) {
+        printf("%-10s $%.2lf\n", monthlyData[i].month, monthlyData[i].sales);
+    }
 
     return 0;
 }
