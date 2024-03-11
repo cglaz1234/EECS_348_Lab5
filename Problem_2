@@ -10,17 +10,16 @@ void calculate_combinations(int score) {
     int td_with_fg = 7;
 
     printf("possible combinations of scoring plays:\n");
-    
+
     // Iterate through all possible combinations
-    for (int td = 0; td <= score / touchdown; td++) {
-        for (int td_conv = 0; td_conv <= (score - td * touchdown) / td_with_conversion; td_conv++) {
-            for (int td_fg = 0; td_fg <= (score - td * touchdown - td_conv * td_with_conversion) / td_with_fg; td_fg++) {
-                for (int fg = 0; fg <= (score - td * touchdown - td_conv * td_with_conversion - td_fg * td_with_fg) / field_goal; fg++) {
-                    for (int saf = 0; saf <= (score - td * touchdown - td_conv * td_with_conversion - td_fg * td_with_fg - fg * field_goal) / safety; saf++) {
-                        // Check if the combination results in the desired score
-                        if (td * touchdown + td_conv * td_with_conversion + td_fg * td_with_fg + fg * field_goal + saf * safety == score) {
-                            printf("%d TD + %d 2pt, %d TD + %d FG, %d TD, %d 3pt FG, %d Safety\n", 
-                                td, td_conv, td_fg, fg, score - td * touchdown - td_conv * td_with_conversion - td_fg * td_with_fg - fg * field_goal, saf);
+      for (int td = 0; td <= score / 6; td++) {
+        for (int fg = 0; fg <= score / 3; fg++) {
+            for (int safety = 0; safety <= score / 2; safety++) {
+                for (int td_2pt = 0; td_2pt <= (score - (td * 6 + fg * 3 + safety * 2)) / 8; td_2pt++) {
+                    for (int td_fg = 0; td_fg <= (score - (td * 6 + fg * 3 + safety * 2 + td_2pt * 8)) / 7; td_fg++) {
+                        int remaining_score = score - (td * 6 + fg * 3 + safety * 2 + td_2pt * 8 + td_fg * 7);
+                        if (remaining_score == 0) {
+                            printf("%d TD + 2pt, %d TD + FG, %d TD, %d 3pt FG, %d Safety\n", td_2pt, td_fg, td, fg, safety);
                         }
                     }
                 }
@@ -44,6 +43,9 @@ int main() {
         
         calculate_combinations(score);
     }
+    
+    return 0;
+}
     
     return 0;
 }
