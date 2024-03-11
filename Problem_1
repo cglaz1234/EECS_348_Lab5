@@ -33,7 +33,10 @@ void sortMonthlyData(struct MonthlyData data[], int numMonths) {
 }
 
 int main() {
-    FILE *inputFile = fopen("monthly_sales.txt", "r"); //ATTENTION GRADER! REPLACE THIS FILE WITH YOUR OWN FILE NAME
+    char filename[100];
+    printf("Enter the name of the input file: ");
+    scanf("%s", filename);
+    FILE *inputFile = fopen(filename, "r"); 
     if (inputFile == NULL) {
         printf("Error opening input file.\n");
         return 1;
@@ -101,6 +104,4 @@ int main() {
     for (int i = 0; i < 12; i++) {
         printf("%-10s $%.2lf\n", monthlyData[i].month, monthlyData[i].sales);
     }
-
-    return 0;
 }
